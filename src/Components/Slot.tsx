@@ -36,10 +36,6 @@ const WinningSound = () => (
   </audio>
 );
 
-const RepeatButton = ({ onClick }: { onClick: () => void }) => (
-  <button aria-label="Play again" id="repeatButton" onClick={onClick} />
-);
-
 const Spinner = forwardRef<
   { spin: (delay?: number, targetPos?: number) => void },
   { onFinish: (pos: number) => void; duration: number; winner?: boolean } // 🔥 dodan winner prop
@@ -176,8 +172,8 @@ Spinner.displayName = "Spinner";
 const Slot: React.FC = () => {
   const [winner, setWinner] = useState<boolean | null>(null);
   const [spinCount, setSpinCount] = useState(0);
-  const [loserMessage, setLoserMessage] = useState("");
-  const [matches, setMatches] = useState<number[]>([]);
+  const [, setLoserMessage] = useState("");
+  const [, setMatches] = useState<number[]>([]);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const frameRef = useRef<HTMLImageElement | null>(null);
 
@@ -198,15 +194,13 @@ const Slot: React.FC = () => {
     return () => observer.disconnect();
   }, []);
 
-  const spinnerRefs = useRef<
-    React.RefObject<{ spin: (delay?: number, targetPos?: number) => void }>[]
-  >([useRef(null), useRef(null), useRef(null), useRef(null), useRef(null)]);
-
-  const handleClick = () => {
-    setWinner(null);
-    setMatches([]);
-    setLoserMessage("");
-  };
+  const spinnerRefs = [
+    useRef<{ spin: (delay?: number, targetPos?: number) => void }>(null),
+    useRef<{ spin: (delay?: number, targetPos?: number) => void }>(null),
+    useRef<{ spin: (delay?: number, targetPos?: number) => void }>(null),
+    useRef<{ spin: (delay?: number, targetPos?: number) => void }>(null),
+    useRef<{ spin: (delay?: number, targetPos?: number) => void }>(null),
+  ];
 
   const handleFinish = (value: number) => {
     setMatches((prev) => {
@@ -244,7 +238,7 @@ const Slot: React.FC = () => {
             () => Math.floor(Math.random() * SYMBOLS.length) * -ICON_HEIGHT
           );
 
-    spinnerRefs.current.forEach((ref, i) => {
+    spinnerRefs.forEach((ref, i) => {
       ref.current?.spin(i * 400, targetPositions[i]);
     });
   };
@@ -300,8 +294,8 @@ const Slot: React.FC = () => {
               key={i}
               onFinish={handleFinish}
               duration={4800 + i * 400}
-              ref={spinnerRefs.current[i]}
-              winner={winner}
+              ref={spinnerRefs[i]}
+              winner={!!winner}
             />
           ))}
 
