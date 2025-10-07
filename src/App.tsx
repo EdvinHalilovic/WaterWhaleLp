@@ -1,4 +1,3 @@
-import React from "react";
 import Slot from "./Components/Slot";
 import Speaker from "./assets/Speaker";
 
