@@ -1,0 +1,170 @@
+/* 🔹 Globalni stilovi */
+body {
+  background: url("/bg.png") no-repeat center center fixed;
+  background-size: cover;
+  margin: 0;
+  padding: 0;
+  font-family: "Poppins", sans-serif;
+  color: white;
+  text-align: center;
+}
+
+/* 🔹 Glavni container */
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+}
+
+/* 🔹 Okvir koji drži sve slotove unutar frame-a */
+.spinner-container {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.95);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 95%; /* 🔸 širina u odnosu na frame */
+  height: 85%; /* 🔸 visina u odnosu na frame */
+  overflow: hidden;
+  border-radius: 28px; /* 🔸 zaobljenje ivica da prati frame */
+  clip-path: inset(2% 2% 2% 2% round 30px);
+  z-index: 1;
+}
+
+/* 🔹 Jedan pojedinačni spinner (kolona sa slikama) */
+.spinner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 128px;
+  height: 375px; /* 🔹 3 × 125px = 375px za 3 reda */
+  overflow: hidden;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.85);
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.15);
+  margin: 0 8px;
+  position: relative;
+}
+.symbol {
+  width: 100%;
+  height: 125px; /* 🔹 sve iste visine */
+  object-fit: contain; /* 🔹 proporcionalno, ne izobličava */
+  padding: 8px; /* 🔹 daje malo prostora da ne dodiruje ivice */
+  box-sizing: border-box;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* 🔹 Gradient fade efekt (opcionalno, za gornji i donji fade) */
+.gradient-fade {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  bottom: 24px;
+  left: 24px;
+  background: linear-gradient(
+    to bottom,
+    rgba(10, 10, 10, 1) 0%,
+    rgba(10, 10, 10, 0) 10%,
+    rgba(10, 10, 10, 0) 90%,
+    rgba(10, 10, 10, 1) 100%
+  );
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* 🔹 Dugme za spin */
+button {
+  background: linear-gradient(135deg, #f027c8, #ff62f8);
+  color: white;
+  border: none;
+  margin-top: 2rem;
+  padding: 1rem 2.5rem;
+  border-radius: 12px;
+  font-size: 1.4rem;
+  cursor: pointer;
+  box-shadow: 0 0 15px rgba(240, 39, 200, 0.6);
+  transition: all 0.3s ease;
+}
+
+button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 25px rgba(240, 39, 200, 0.9);
+}
+
+/* 🔹 Responsive prilagođavanje */
+@media (max-width: 1024px) {
+  .spinner-container {
+    transform: translate(-50%, -50%) scale(0.9);
+    width: 96%;
+    height: 84%;
+  }
+
+  .spinner {
+    width: 110px;
+    height: 480px;
+  }
+
+  .symbol {
+    height: 160px;
+  }
+}
+
+@media (max-width: 768px) {
+  .spinner-container {
+    transform: translate(-50%, -50%) scale(0.8);
+    width: 97%;
+    height: 82%;
+  }
+
+  .spinner {
+    width: 96px;
+    height: 420px;
+  }
+
+  .symbol {
+    height: 140px;
+  }
+}
+
+@media (max-width: 480px) {
+  .spinner-container {
+    transform: translate(-50%, -50%) scale(0.75);
+    width: 98%;
+    height: 78%;
+  }
+
+  .spinner {
+    width: 84px;
+    height: 380px;
+  }
+
+  .symbol {
+    height: 120px;
+  }
+}
+.winning-frame {
+  background-image: url("/Golden.png"); /* 🟡 zlatni okvir */
+  background-size: cover;
+  background-position: center;
+  background-color: #d79a16;
+  border-radius: 12px;
+  animation: pulse-glow 1s infinite alternate;
+}
+
+/* 💫 Lagano svjetlucanje */
+@keyframes pulse-glow {
+  0% {
+    filter: brightness(1);
+    transform: scale(1);
+  }
+  100% {
+    filter: brightness(1.3);
+    transform: scale(1.05);
+  }
+}
