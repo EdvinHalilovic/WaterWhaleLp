@@ -7,17 +7,8 @@ import React, {
   useImperativeHandle,
 } from "react";
 import "/src/SlotMachine.css";
+import WinningModal from "./WinningModal";
 
-const ICON_HEIGHT = 125;
-const TOTAL_SYMBOLS = 9;
-
-const LOSER_MESSAGES = [
-  "Not quite",
-  "Try again!",
-  "Ouch! So close!",
-  "Better luck next time!",
-  "Maybe next spin 🍀",
-];
 const SYMBOLS = [
   "/A.png",
   "/K.png",
@@ -27,8 +18,15 @@ const SYMBOLS = [
   "/goldCoin.png",
   "/stick.png",
   "/GoldenReef.png",
+  "/greenDogHouse.png",
+  "/blueDogHouse.png",
+  "/pinkDogHouse.png",
+  "/redDogHouse.png",
   "/dogHouse.png",
 ];
+
+const ICON_HEIGHT = 120;
+const TOTAL_SYMBOLS = SYMBOLS.length;
 
 const WinningSound = () => (
   <audio autoPlay className="player" preload="none">
@@ -38,146 +36,166 @@ const WinningSound = () => (
 
 const Spinner = forwardRef<
   { spin: (delay?: number, targetPos?: number) => void },
-  { onFinish: (pos: number) => void; duration: number; winner?: boolean } // 🔥 dodan winner prop
->(({ onFinish, duration, winner = false }, ref) => {
-  const [position, setPosition] = useState(0);
-  const timerRef = useRef<ReturnType<typeof requestAnimationFrame> | null>(
-    null
-  );
-  const startTimeRef = useRef<number | null>(null);
-  const activeRef = useRef(false);
+  {
+    onFinish: (pos: number) => void;
+    duration: number;
+    winner?: boolean;
+    initialSymbol?: string;
+    dimmed?: boolean;
+  }
+>(
+  (
+    { onFinish, duration, winner = false, initialSymbol, dimmed = false },
+    ref
+  ) => {
+    const [position, setPosition] = useState(0);
 
-  const easeOutQuart = (t: number) => 1 - Math.pow(1 - t, 4);
+    const timerRef = useRef<ReturnType<typeof requestAnimationFrame> | null>(
+      null
+    );
+    const startTimeRef = useRef<number | null>(null);
+    const activeRef = useRef(false);
 
-  const spinAnimation = useCallback(
-    (
-      timestamp: number,
-      localDuration: number,
-      delay: number,
-      targetPos: number
-    ) => {
-      if (!activeRef.current) return;
-      if (!startTimeRef.current) startTimeRef.current = timestamp;
+    const easeOutQuart = (t: number) => 1 - Math.pow(1 - t, 4);
 
-      const elapsed = timestamp - startTimeRef.current - delay;
-      if (elapsed < 0) {
-        timerRef.current = requestAnimationFrame((t) =>
-          spinAnimation(t, localDuration, delay, targetPos)
+    const spinAnimation = useCallback(
+      (
+        timestamp: number,
+        localDuration: number,
+        delay: number,
+        targetPos: number
+      ) => {
+        if (!activeRef.current) return;
+        if (!startTimeRef.current) startTimeRef.current = timestamp;
+
+        const elapsed = timestamp - startTimeRef.current - delay;
+        if (elapsed < 0) {
+          timerRef.current = requestAnimationFrame((t) =>
+            spinAnimation(t, localDuration, delay, targetPos)
+          );
+          return;
+        }
+
+        const progress = Math.min(elapsed / localDuration, 1);
+        const eased = easeOutQuart(progress);
+        const distance = ICON_HEIGHT * TOTAL_SYMBOLS * 25 * eased;
+        const offsetCenter = ICON_HEIGHT * 1.0;
+        const newPos = -(
+          (distance + targetPos + offsetCenter) %
+          (ICON_HEIGHT * TOTAL_SYMBOLS)
         );
-        return;
-      }
 
-      const progress = Math.min(elapsed / localDuration, 1);
-      const eased = easeOutQuart(progress);
-      const distance = ICON_HEIGHT * TOTAL_SYMBOLS * 25 * eased;
-      const offsetCenter = ICON_HEIGHT * 1.5;
+        setPosition(newPos);
 
-      const newPos =
-        ((distance % (ICON_HEIGHT * TOTAL_SYMBOLS)) +
-          targetPos +
-          offsetCenter) %
-        (ICON_HEIGHT * TOTAL_SYMBOLS);
+        if (progress < 1) {
+          timerRef.current = requestAnimationFrame((t) =>
+            spinAnimation(t, localDuration, delay, targetPos)
+          );
+        } else {
+          activeRef.current = false;
+          setTimeout(() => onFinish(targetPos), 0);
+        }
+      },
+      [onFinish]
+    );
 
-      setPosition(newPos);
-
-      if (progress < 1) {
+    const spin = useCallback(
+      (delay = 0, targetPos = 0) => {
+        if (timerRef.current) cancelAnimationFrame(timerRef.current);
+        startTimeRef.current = null;
+        activeRef.current = true;
         timerRef.current = requestAnimationFrame((t) =>
-          spinAnimation(t, localDuration, delay, targetPos)
+          spinAnimation(t, duration, delay, targetPos)
         );
-      } else {
-        activeRef.current = false;
-        setTimeout(() => onFinish(targetPos), 0);
-      }
-    },
-    [onFinish]
-  );
+      },
+      [duration, spinAnimation]
+    );
 
-  const spin = useCallback(
-    (delay = 0, targetPos = 0) => {
-      if (timerRef.current) cancelAnimationFrame(timerRef.current);
-      startTimeRef.current = null;
-      activeRef.current = true;
-      timerRef.current = requestAnimationFrame((t) =>
-        spinAnimation(t, duration, delay, targetPos)
-      );
-    },
-    [duration, spinAnimation]
-  );
+    useImperativeHandle(ref, () => ({ spin }), [spin]);
 
-  useImperativeHandle(ref, () => ({ spin }), [spin]);
+    useEffect(() => {
+      return () => {
+        if (timerRef.current) cancelAnimationFrame(timerRef.current);
+      };
+    }, []);
 
-  useEffect(() => {
-    return () => {
-      if (timerRef.current) cancelAnimationFrame(timerRef.current);
-    };
-  }, []);
+    return (
+      <div className="spinner">
+        <div
+          className="spinner-inner"
+          style={{
+            transform: `translateY(${position}px)`,
+            transition: activeRef.current ? "none" : "transform 0.5s ease-out",
+          }}
+        >
+          {initialSymbol ? (
+            <div
+              className="symbol-wrapper"
+              style={{
+                position: "relative",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <img src={initialSymbol} alt="initial" className="symbol" />
+            </div>
+          ) : null}
 
-  return (
-    <div className="spinner-wrapper">
-      <div
-        className="spinner-inner"
-        style={{
-          transform: `translateY(${position}px)`,
-          transition: activeRef.current ? "none" : "transform 0.5s ease-out",
-        }}
-      >
-        {SYMBOLS.map((src, i) => (
-          <div
-            key={i}
-            className="symbol-wrapper"
-            style={{
-              position: "relative",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <img src={src} alt={`symbol-${i}`} className="symbol" />
+          {SYMBOLS.map((src, i) => (
+            <div
+              key={i}
+              className="symbol-wrapper"
+              style={{
+                position: "relative",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <img src={src} alt={`symbol-${i}`} className="symbol" />
+            </div>
+          ))}
 
-            {winner && src.includes("dogHouse") && (
-              <img
-                src="/golden.png"
-                alt="Winning Frame"
-                style={{
-                  position: "absolute",
-                  width: "100%",
-                  height: "100%",
-                  objectFit: "contain",
-                  pointerEvents: "none",
-                  animation: "framePulse 1.2s ease-in-out infinite",
-                }}
-              />
-            )}
-          </div>
-        ))}
-
-        {/* 🔁 Duplikat za glatku petlju */}
-        {SYMBOLS.map((src, i) => (
-          <div
-            key={i}
-            className={`symbol-wrapper ${
-              winner && src.includes("dogHouse") ? "winning-frame" : ""
-            }`}
-          >
-            <img src={src} alt={`symbol-${i}`} className="symbol" />
-          </div>
-        ))}
+          {SYMBOLS.map((src, i) => (
+            <div
+              key={i}
+              className={`symbol-wrapper ${
+                winner && src.includes("dogHouse")
+                  ? "winning-frame"
+                  : dimmed
+                  ? "symbol-dimmed"
+                  : ""
+              }`}
+            >
+              <img src={src} alt={`symbol-${i}`} className="symbol" />
+            </div>
+          ))}
+        </div>
       </div>
-    </div>
-  );
-});
+    );
+  }
+);
 
 Spinner.displayName = "Spinner";
 
 const Slot: React.FC = () => {
   const [winner, setWinner] = useState<boolean | null>(null);
   const [spinCount, setSpinCount] = useState(0);
+  const [showWinModal, setShowWinModal] = useState(false);
+
   const [, setLoserMessage] = useState("");
   const [, setMatches] = useState<number[]>([]);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const frameRef = useRef<HTMLImageElement | null>(null);
+  const [initialSymbols] = useState([
+    "/pinkDogHouse.png",
+    "/greenDogHouse.png",
+    "/redDogHouse.png",
+    "/blueDogHouse.png",
+    "/GoldenReef.png",
+  ]);
 
-  // 🎯 Dinamički resize za frame
   useEffect(() => {
     if (!containerRef.current || !frameRef.current) return;
 
@@ -205,15 +223,21 @@ const Slot: React.FC = () => {
   const handleFinish = (value: number) => {
     setMatches((prev) => {
       const updated = [...prev, value];
+
+      // čekamo da svih 5 kolona završi
       if (updated.length === 5) {
         const allSame = updated.every((v) => v === updated[0]);
         setWinner(allSame);
-        if (!allSame) {
-          setLoserMessage(
-            LOSER_MESSAGES[Math.floor(Math.random() * LOSER_MESSAGES.length)]
-          );
-        }
+
+        // 🔥 provjeri spinCount nakon što se svi završe
+        setTimeout(() => {
+          if (spinCount + 1 === 2) {
+            // spinCount + 1 jer novi spin tek ulazi
+            setShowWinModal(true);
+          }
+        }, 600);
       }
+
       return updated;
     });
   };
@@ -227,12 +251,23 @@ const Slot: React.FC = () => {
     const nextSpin = spinCount + 1;
     setSpinCount(nextSpin);
 
-    // ako je drugi spin -> svi na dogHouse (win)
-    // 🏠 drugi spin -> uvijek DOGHOUSE win kombinacija
     const dogHouseIndex = SYMBOLS.findIndex((s) => s.includes("dogHouse.png"));
+    const dogHouses = [
+      "/pinkDogHouse.png",
+      "/greenDogHouse.png",
+      "/redDogHouse.png",
+      "/blueDogHouse.png",
+      "/dogHouse.png",
+    ];
+
     const targetPositions =
-      nextSpin === 2 && dogHouseIndex !== -1
-        ? Array(5).fill(-ICON_HEIGHT * (dogHouseIndex + 2)) // pomakni za 1 dole da dogHouse bude vidljiv
+      nextSpin === 1
+        ? dogHouses.map((s) => {
+            const idx = SYMBOLS.findIndex((sym) => sym === s);
+            return -ICON_HEIGHT * (idx + 5);
+          })
+        : nextSpin === 2 && dogHouseIndex !== -1
+        ? Array(5).fill(-ICON_HEIGHT * (dogHouseIndex + 3))
         : Array.from(
             { length: 5 },
             () => Math.floor(Math.random() * SYMBOLS.length) * -ICON_HEIGHT
@@ -258,7 +293,6 @@ const Slot: React.FC = () => {
       }}
     >
       {winner && <WinningSound />}
-      {/* 🐋 Whale.io logo umjesto teksta */}
       <img
         src="/whale.ioLogo.svg"
         alt="Whale.io Logo"
@@ -273,7 +307,6 @@ const Slot: React.FC = () => {
         }}
       />
 
-      {/* 🎰 Slot i Frame */}
       <div
         ref={containerRef}
         style={{
@@ -296,6 +329,7 @@ const Slot: React.FC = () => {
               duration={4800 + i * 400}
               ref={spinnerRefs[i]}
               winner={!!winner}
+              initialSymbol={initialSymbols[i]}
             />
           ))}
 
@@ -306,12 +340,12 @@ const Slot: React.FC = () => {
           alt="Water Logo"
           style={{
             position: "absolute",
-            top: "clamp(-6%, -4vh, -2%)", // 📍 malo iznad frame-a
+            top: "clamp(-6%, -4vh, -2%)",
             left: "50%",
-            transform: "translateX(-50%)", // ✅ centriranje horizontalno
-            width: "clamp(140px, 18vw, 260px)", // 📏 responsive širina
+            transform: "translateX(-50%)",
+            width: "clamp(140px, 18vw, 260px)",
             height: "auto",
-            zIndex: 3, // iznad frame-a
+            zIndex: 3,
             pointerEvents: "none",
             userSelect: "none",
           }}
@@ -340,7 +374,7 @@ const Slot: React.FC = () => {
             right: "0",
             width: "clamp(70px, 10vw, 140px)",
             height: "auto",
-            transform: "rotate(30deg) translateX(40%) translateY(20%)", // pomjereno 20% udesno
+            transform: "rotate(30deg) translateX(40%) translateY(20%)",
             transformOrigin: "bottom right",
             aspectRatio: "1 / 1",
             zIndex: 1,
@@ -348,23 +382,20 @@ const Slot: React.FC = () => {
           }}
         />
       </div>
-      {/* 🎯 Info panel uz donji rub waterFrame-a */}
+
       <div
         style={{
           position: "absolute",
-          bottom: "calc(2% + 3.8vw)", // blago iznad dna waterFrame-a
+          bottom: "calc(2% + 3.8vw)",
           left: "50%",
           transform: "translate(-85%, 0)",
-
           display: "flex",
           flexDirection: "column",
           justifyContent: "center",
           alignItems: "center",
           gap: "clamp(2px, 0.5vw, 4px)",
-
           width: "clamp(160px, 20vw, 220px)",
           padding: "clamp(3px, 0.8vw, 6px)",
-
           borderRadius: "clamp(24px, 3vw, 32px)",
           border: "2px solid #002C47",
           background:
@@ -413,7 +444,6 @@ const Slot: React.FC = () => {
           gap: "clamp(6px, 1vw, 10px)",
           width: "clamp(130px, 16vw, 190px)",
           height: "clamp(60px, 6vh, 90px)",
-
           padding: "clamp(6px, 0.8vw, 8px) clamp(16px, 1.6vw, 20px)",
           borderRadius: "68.6px",
           border: "2px solid #F28F2E",
@@ -432,7 +462,6 @@ const Slot: React.FC = () => {
               : "0 0 10px rgba(242,143,46,0.25), inset 0 0 10px rgba(242,143,46,0.15)",
         }}
       >
-        {/* 🔄 Ikonica lijevo */}
         <img
           src="/Refresh.svg"
           alt="Refresh Icon"
@@ -454,6 +483,10 @@ const Slot: React.FC = () => {
           Spin
         </span>
       </button>
+      <WinningModal
+        visible={showWinModal}
+        onClose={() => setShowWinModal(false)}
+      />
     </div>
   );
 };
