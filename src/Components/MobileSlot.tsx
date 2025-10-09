@@ -193,9 +193,13 @@ const MobileSlot: React.FC = () => {
     return () => observer.disconnect();
   }, []);
 
-  const spinnerRefs = Array.from({ length: 5 }, () =>
-    useRef<{ spin: (delay?: number, targetPos?: number) => void }>(null)
-  );
+  const spinnerRefs = [
+    useRef<{ spin: (delay?: number, targetPos?: number) => void }>(null),
+    useRef<{ spin: (delay?: number, targetPos?: number) => void }>(null),
+    useRef<{ spin: (delay?: number, targetPos?: number) => void }>(null),
+    useRef<{ spin: (delay?: number, targetPos?: number) => void }>(null),
+    useRef<{ spin: (delay?: number, targetPos?: number) => void }>(null),
+  ];
 
   const handleFinish = (value: number) => {
     setMatches((prev) => {
