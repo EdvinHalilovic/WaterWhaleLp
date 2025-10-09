@@ -136,7 +136,7 @@ function App() {
         alt="Golden Seaweed"
         style={{
           position: "absolute",
-          bottom: "3vh",
+          bottom: "-2vh",
           left: "-6vh",
           width: "clamp(80px, 12vw, 160.66px)",
           height: "auto",
