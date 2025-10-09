@@ -292,19 +292,20 @@ const Slot: React.FC<{
     // ⏱ trajanje ukupnog spina = najduža kolona + delay (zadnja ima najduže trajanje)
     const totalSpinDuration = 4800 + (spinnerRefs.length - 1) * 400; // isto kao tvoj duration
 
-    // 🎵 Zaustavi zvuk tačno kad spin završi
+    // 🎵 Zaustavi zvuk tačno kad spin završi (null-safe)
     setTimeout(() => {
-      if (audioRef.current) {
-        const fade = setInterval(() => {
-          if (audioRef.current && audioRef.current.volume > 0.05) {
-            audioRef.current.volume -= 0.05;
-          } else {
-            clearInterval(fade);
-            audioRef.current?.pause();
-            audioRef.current.volume = 0.6;
-          }
-        }, 80);
-      }
+      const audio = audioRef.current;
+      if (!audio) return;
+
+      const fade = setInterval(() => {
+        if (audio.volume > 0.05) {
+          audio.volume = Math.max(0, audio.volume - 0.05);
+        } else {
+          clearInterval(fade);
+          audio.pause();
+          audio.volume = 0.6;
+        }
+      }, 80);
     }, totalSpinDuration);
   };
 
