@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Slot from "./Components/Slot";
 import Speaker from "./assets/Speaker";
 import MobileLayout from "./MobileLayout";
