@@ -6,7 +6,7 @@ import React, {
   forwardRef,
   useImperativeHandle,
 } from "react";
-import "/src/SlotMachine.css";
+import "/src/mobile.css";
 import WinningModal from "./WinningModal";
 
 const SYMBOLS = [
@@ -48,8 +48,7 @@ const Spinner = forwardRef<
     { onFinish, duration, winner = false, initialSymbol, dimmed = false },
     ref
   ) => {
-    const [position, setPosition] = useState(0);
-
+    const spinnerInnerRef = useRef<HTMLDivElement | null>(null);
     const timerRef = useRef<ReturnType<typeof requestAnimationFrame> | null>(
       null
     );
@@ -85,7 +84,9 @@ const Spinner = forwardRef<
           (ICON_HEIGHT * TOTAL_SYMBOLS)
         );
 
-        setPosition(newPos);
+        if (spinnerInnerRef.current) {
+          spinnerInnerRef.current.style.transform = `translateY(${newPos}px)`;
+        }
 
         if (progress < 1) {
           timerRef.current = requestAnimationFrame((t) =>
@@ -122,44 +123,27 @@ const Spinner = forwardRef<
     return (
       <div className="spinner">
         <div
+          ref={spinnerInnerRef}
           className="spinner-inner"
           style={{
-            transform: `translateY(${position}px)`,
-            transition: activeRef.current ? "none" : "transform 0.5s ease-out",
+            willChange: "transform",
           }}
         >
           {initialSymbol ? (
-            <div
-              className="symbol-wrapper"
-              style={{
-                position: "relative",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
+            <div className="symbol-wrapper">
               <img src={initialSymbol} alt="initial" className="symbol" />
             </div>
           ) : null}
 
           {SYMBOLS.map((src, i) => (
-            <div
-              key={i}
-              className="symbol-wrapper"
-              style={{
-                position: "relative",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
+            <div key={i} className="symbol-wrapper">
               <img src={src} alt={`symbol-${i}`} className="symbol" />
             </div>
           ))}
 
           {SYMBOLS.map((src, i) => (
             <div
-              key={i}
+              key={`dup-${i}`}
               className={`symbol-wrapper ${
                 winner && src.includes("dogHouse")
                   ? "winning-frame"
@@ -179,7 +163,7 @@ const Spinner = forwardRef<
 
 Spinner.displayName = "Spinner";
 
-const Slot: React.FC = () => {
+const MobileSlot: React.FC = () => {
   const [winner, setWinner] = useState<boolean | null>(null);
   const [spinCount, setSpinCount] = useState(0);
   const [showWinModal, setShowWinModal] = useState(false);
@@ -198,46 +182,31 @@ const Slot: React.FC = () => {
 
   useEffect(() => {
     if (!containerRef.current || !frameRef.current) return;
-
     const resizeFrame = () => {
       const { width, height } = containerRef.current!.getBoundingClientRect();
       frameRef.current!.style.width = `${width}px`;
       frameRef.current!.style.height = `${height}px`;
     };
-
     const observer = new ResizeObserver(resizeFrame);
     observer.observe(containerRef.current);
     resizeFrame();
-
     return () => observer.disconnect();
   }, []);
 
-  const spinnerRefs = [
-    useRef<{ spin: (delay?: number, targetPos?: number) => void }>(null),
-    useRef<{ spin: (delay?: number, targetPos?: number) => void }>(null),
-    useRef<{ spin: (delay?: number, targetPos?: number) => void }>(null),
-    useRef<{ spin: (delay?: number, targetPos?: number) => void }>(null),
-    useRef<{ spin: (delay?: number, targetPos?: number) => void }>(null),
-  ];
+  const spinnerRefs = Array.from({ length: 5 }, () =>
+    useRef<{ spin: (delay?: number, targetPos?: number) => void }>(null)
+  );
 
   const handleFinish = (value: number) => {
     setMatches((prev) => {
       const updated = [...prev, value];
-
-      // čekamo da svih 5 kolona završi
       if (updated.length === 5) {
         const allSame = updated.every((v) => v === updated[0]);
         setWinner(allSame);
-
-        // 🔥 provjeri spinCount nakon što se svi završe
         setTimeout(() => {
-          if (spinCount + 1 === 2) {
-            // spinCount + 1 jer novi spin tek ulazi
-            setShowWinModal(true);
-          }
+          if (spinCount + 1 === 2) setShowWinModal(true);
         }, 600);
       }
-
       return updated;
     });
   };
@@ -284,12 +253,13 @@ const Slot: React.FC = () => {
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
-        justifyContent: "center",
+        justifyContent: "flex-start",
         textAlign: "center",
-        width: "100%",
-        maxWidth: "800px",
+        width: "90vw",
+        maxWidth: "420px",
         margin: "0 auto",
-        height: "90%",
+        paddingTop: "8vh",
+        position: "relative",
       }}
     >
       {winner && <WinningSound />}
@@ -301,25 +271,23 @@ const Slot: React.FC = () => {
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
-          width: "100%",
-          aspectRatio: window.innerWidth > 768 ? "16 / 9" : "auto",
-          maxWidth: "800px",
+          width: "min(100vw, 420px)", // 🔥 automatski koristi 90% širine, max 420px
+          aspectRatio: "1.4 / 1", // 🔥 zadržava isti odnos visine i širine (kao 420x298)
+          maxHeight: "min(70vh, 340px)", // 🔥 neće preći 70% ekrana visine ni 340px
           overflow: "visible",
-          pointerEvents: "none",
         }}
       >
-        <div className="spinner-container">
+        <div className="spinner-container-mobile">
           {[0, 1, 2, 3, 4].map((i) => (
             <Spinner
               key={i}
               onFinish={handleFinish}
-              duration={4800 + i * 400}
+              duration={4200 + i * 300}
               ref={spinnerRefs[i]}
               winner={!!winner}
               initialSymbol={initialSymbols[i]}
             />
           ))}
-
           <div className="gradient-fade" />
         </div>
         <img
@@ -351,125 +319,127 @@ const Slot: React.FC = () => {
             zIndex: 2,
           }}
         />
-
-        <img
-          src="/goldCoin.png"
-          alt="Gold Coin"
-          style={{
-            position: "absolute",
-            bottom: "-1vh",
-            right: "0",
-            width: "clamp(70px, 10vw, 140px)",
-            height: "auto",
-            transform: "rotate(30deg) translateX(40%) translateY(20%)",
-            transformOrigin: "bottom right",
-            aspectRatio: "1 / 1",
-            zIndex: 1,
-            pointerEvents: "none",
-          }}
-        />
       </div>
 
-      <div
-        style={{
-          position: "absolute",
-          bottom: "calc(2% + 3.8vw)",
-          left: "50%",
-          transform: "translate(-85%, 0)",
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
-          alignItems: "center",
-          gap: "clamp(2px, 0.5vw, 4px)",
-          width: "clamp(160px, 20vw, 220px)",
-          padding: "clamp(3px, 0.8vw, 6px)",
-          borderRadius: "clamp(24px, 3vw, 32px)",
-          border: "2px solid #002C47",
-          background:
-            "linear-gradient(180deg, rgba(0,44,71,0.6) 0%, rgba(0,24,40,0.4) 100%)",
-          boxShadow: "0 0 10px rgba(0, 0, 0, 0.3)",
-          color: "#FFF",
-          fontFamily: "Poppins, sans-serif",
-          textAlign: "center",
-          backdropFilter: "blur(6px)",
-          zIndex: 10,
-        }}
-      >
-        <span
-          style={{
-            fontSize: "clamp(8px, 1vw, 10px)",
-            fontWeight: "400",
-            letterSpacing: "0.4px",
-            opacity: 0.85,
-          }}
-        >
-          YOU HAVE
-        </span>
-
-        <span
-          style={{
-            fontWeight: "700",
-            fontSize: "clamp(10px, 1.4vw, 14px)",
-            color: "#FFD700",
-          }}
-        >
-          {2 - spinCount} SPIN{2 - spinCount !== 1 ? "S" : ""}
-        </span>
-      </div>
-
+      {/* 🎰 SPIN BUTTON */}
       <button
         onClick={handleSpin}
         disabled={spinCount >= 2}
         style={{
+          marginTop: "3.5vh",
           display: "flex",
-          alignItems: "center",
+          flexDirection: "column",
           justifyContent: "center",
-          position: "absolute",
-          transform: "translateY(-60%)",
-          bottom: "clamp(3%, 5vh, 6%)",
-          right: "clamp(34%, 8vw, 1%)",
-          gap: "clamp(6px, 1vw, 10px)",
-          width: "clamp(130px, 16vw, 190px)",
-          height: "clamp(60px, 6vh, 90px)",
-          padding: "clamp(6px, 0.8vw, 8px) clamp(16px, 1.6vw, 20px)",
-          borderRadius: "68.6px",
-          border: "2px solid #F28F2E",
+          alignItems: "center",
+          gap: "8px",
+          width: "clamp(130px, 45vw, 180px)", // skalira se po ekranu
+          padding: "12px 32px",
+          borderRadius: "24px",
+          border: "2.286px solid #F28F2E",
           background:
-            "linear-gradient(0deg, rgba(242,143,46,0.20) 0%, rgba(242,143,46,0.20) 100%), #011220",
-          color: spinCount >= 2 ? "#9FA6AD" : "#FFFFFF",
-          fontSize: "clamp(14px, 1.4vw, 18px)",
+            "linear-gradient(0deg, rgba(80,40,10,0.9) 0%, rgba(242,143,46,0.15) 100%)",
+          color: "#FFF",
+          fontFamily: "'Jost', sans-serif",
+          fontSize: "clamp(14px, 3.5vw, 16px)",
           fontWeight: 600,
+          lineHeight: "24px",
           cursor: spinCount >= 2 ? "not-allowed" : "pointer",
           opacity: spinCount >= 2 ? 0.6 : 1,
-          transition: "all 0.25s ease-in-out",
-          zIndex: 10,
           boxShadow:
             spinCount >= 2
               ? "none"
-              : "0 0 10px rgba(242,143,46,0.25), inset 0 0 10px rgba(242,143,46,0.15)",
+              : "0 0 10px rgba(242,143,46,0.35), inset 0 0 8px rgba(242,143,46,0.25)",
+          transition: "all 0.25s ease-in-out",
         }}
       >
-        <img
-          src="/Refresh.svg"
-          alt="Refresh Icon"
+        <div
           style={{
-            width: "clamp(12px, 2vw, 19px)",
-            height: "auto",
-            opacity: spinCount >= 2 ? 0.5 : 1,
-            filter: spinCount >= 2 ? "grayscale(100%)" : "none",
-            userSelect: "none",
-            pointerEvents: "none",
-          }}
-        />
-        <span
-          style={{
-            fontWeight: 600,
-            color: spinCount >= 2 ? "#9FA6AD" : "#FFFFFF",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "10px",
           }}
         >
-          Spin
-        </span>
+          <img
+            src="/Refresh.svg"
+            alt="Refresh Icon"
+            style={{
+              width: "clamp(20px, 4vw, 24px)",
+              height: "clamp(20px, 4vw, 24px)",
+              aspectRatio: "1 / 1",
+              filter: spinCount >= 2 ? "grayscale(100%)" : "none",
+              transition: "filter 0.2s ease",
+            }}
+          />
+          <span
+            style={{
+              color: spinCount >= 2 ? "#AAA" : "#FFF",
+              textTransform: "uppercase",
+              letterSpacing: "0.5px",
+            }}
+          >
+            Spin
+          </span>
+        </div>
       </button>
+
+      {/* 🎯 YOU HAVE 2 SPINS BLOCK */}
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          marginTop: "2.5vh",
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            gap: "10px",
+            width: "clamp(240px, 70vw, 340px)",
+            padding: "12px 16px",
+            borderRadius: "32px",
+            border: "2px solid #002C47",
+            background:
+              "linear-gradient(180deg, rgba(0, 25, 55, 0.95) 0%, rgba(0, 30, 60, 0.85) 100%)",
+            boxShadow: "0 2px 6px rgba(0,0,0,0.3)",
+            color: "#FFFFFF",
+            fontFamily: "Poppins, sans-serif",
+            textAlign: "center",
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              lineHeight: "1.4",
+            }}
+          >
+            <span
+              style={{
+                fontSize: "clamp(10px, 2.5vw, 13px)",
+                fontWeight: 500,
+                opacity: 0.85,
+              }}
+            >
+              YOU HAVE
+            </span>
+            <span
+              style={{
+                fontWeight: 700,
+                fontSize: "clamp(14px, 4vw, 18px)",
+                color: "#FFD700",
+              }}
+            >
+              {2 - spinCount} SPIN{2 - spinCount !== 1 ? "S" : ""}
+            </span>
+          </div>
+        </div>
+      </div>
+
       <WinningModal
         visible={showWinModal}
         onClose={() => setShowWinModal(false)}
@@ -478,4 +448,4 @@ const Slot: React.FC = () => {
   );
 };
 
-export default Slot;
+export default MobileSlot;

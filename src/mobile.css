@@ -1,0 +1,21 @@
+.spinner-inner {
+  will-change: transform;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+}
+.spinner-container-mobile {
+  position: absolute;
+  top: 52%;
+  left: 50%;
+
+  transform: translate(-50%, -52%) scale(0.6); /* 🔹 malo manja skala i pomjereno naviše */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 140%;
+  height: 390px; /* 🔹 malo veća visina za više prostora */
+  overflow: hidden;
+  border-radius: 28px;
+  clip-path: inset(2% 2% 2% 2% round 30px);
+  z-index: 1;
+}

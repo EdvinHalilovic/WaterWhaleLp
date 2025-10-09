@@ -1,7 +1,24 @@
+import React, { useEffect, useState } from "react";
 import Slot from "./Components/Slot";
 import Speaker from "./assets/Speaker";
+import MobileLayout from "./MobileLayout";
 
 function App() {
+  // ✅ detekcija mobilnog ekrana
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  // ✅ mobilna verzija
+  if (isMobile) {
+    return <MobileLayout />;
+  }
+
+  // ✅ tvoj desktop layout (nepromijenjen)
   return (
     <div
       style={{
@@ -16,19 +33,21 @@ function App() {
         alignItems: "center",
         flexDirection: "column",
         overflow: "hidden",
-        position: "relative", // ✅ potrebno za absolute positioning
+        position: "relative",
       }}
     >
       {/* 🔊 Speaker ikonica gore desno */}
       <Speaker />
+
+      {/* 🐳 Blue Whale */}
       <img
         src="/BlueWhale.png"
         alt="Blue Whale"
         style={{
           position: "absolute",
-          top: "clamp(9%, 12vh, 15%)", // ⬆️ tačno ispod zvučnika
-          right: "clamp(0%, 0vw, 0%)", // ➡️ uz desni rub ekrana
-          width: "clamp(90px, 10vw, 162px)", // 📱 responsive širina
+          top: "clamp(9%, 12vh, 15%)",
+          right: "clamp(0%, 0vw, 0%)",
+          width: "clamp(90px, 10vw, 162px)",
           height: "auto",
           flexShrink: 0,
           aspectRatio: "1 / 1",
@@ -36,42 +55,31 @@ function App() {
           animation: "floatWhale 7s ease-in-out infinite",
           pointerEvents: "none",
           userSelect: "none",
-
-          /* ✨ Ako PNG ima tamnu pozadinu — ovo je vizualni fix */
           imageRendering: "auto",
           backgroundColor: "transparent",
-          mixBlendMode: "screen", // 💧 izbaci sivu nijansu i omekša ivice
+          mixBlendMode: "screen",
           filter: "drop-shadow(0 4px 4px rgba(0,0,0,0.25))",
         }}
       />
 
       <style>
         {`
-    @keyframes floatWhale {
-      0%   { transform: translateY(0); }
-      50%  { transform: translateY(-10px); }
-      100% { transform: translateY(0); }
-    }
-  `}
+        @keyframes floatWhale {
+          0%   { transform: translateY(0); }
+          50%  { transform: translateY(-10px); }
+          100% { transform: translateY(0); }
+        }
+      `}
       </style>
 
-      <style>
-        {`
-    @keyframes floatSpeaker {
-      0%   { transform: rotate(-15deg) translateY(0); }
-      50%  { transform: rotate(-18deg) translateY(-8px); }
-      100% { transform: rotate(-15deg) translateY(0); }
-    }
-  `}
-      </style>
-
+      {/* 🏠 DogHouse */}
       <img
-        src="/dogHouse.png"
+        src="/DogHouseBg.png"
         alt="Dog House"
         style={{
           position: "absolute",
           top: "clamp(3%, 5vh, 6%)",
-          left: "clamp(-4%, -2.7vw, -2%)",
+          left: "clamp(-2%, -0.7vw, -0.3%)",
           width: "clamp(90px, 10vw, 142px)",
           height: "auto",
           transform: "rotate(15deg)",
@@ -80,20 +88,34 @@ function App() {
           zIndex: 4,
           pointerEvents: "none",
           userSelect: "none",
-          animation: "float 5s ease-in-out infinite", // 🫧 dodano
+          animation: "float 5s ease-in-out infinite",
         }}
       />
 
       <style>
         {`
-    @keyframes float {
-      0% { transform: rotate(15deg) translateY(0); }
-      50% { transform: rotate(12deg) translateY(-8px); } /* lagano gore */
-      100% { transform: rotate(15deg) translateY(0); }
-    }
-  `}
+        @keyframes float {
+          0% { transform: rotate(15deg) translateY(0); }
+          50% { transform: rotate(12deg) translateY(-8px); }
+          100% { transform: rotate(15deg) translateY(0); }
+        }
+      `}
       </style>
+      <img
+        src="/whale.ioLogo.svg"
+        alt="Whale.io Logo"
+        style={{
+          width: "clamp(120px, 18vw, 180px)",
+          height: "auto",
+          aspectRatio: "15 / 4",
+          flexShrink: 0,
+          marginBottom: "1.5rem",
+          userSelect: "none",
+          pointerEvents: "none",
+        }}
+      />
 
+      {/* 🎰 Slot komponenta */}
       <Slot />
 
       {/* 🌿 Golden Seaweed dekoracija */}
@@ -103,7 +125,7 @@ function App() {
         style={{
           position: "absolute",
           bottom: "3vh",
-          left: "-6vh", // ✅ sada je skroz u lijevom uglu
+          left: "-6vh",
           width: "clamp(80px, 12vw, 160.66px)",
           height: "auto",
           transform: "rotate(30deg)",

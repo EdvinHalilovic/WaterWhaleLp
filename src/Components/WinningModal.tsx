@@ -4,18 +4,16 @@ import { keyframes, css } from "@emotion/react";
 
 /* ==== ANIMACIJE ==== */
 const raysSpinCCW = keyframes`
-  from { transform: rotate(0deg) scale(1.06); }
-  to   { transform: rotate(-360deg) scale(1.06); }
+   0% { transform: rotate(-25deg) scale(1.8); }
+  50% { transform: rotate(25deg) scale(1.8); }
+  100% { transform: rotate(-25deg) scale(1.8); }
 `;
 const raysSpinCW = keyframes`
-  from { transform: rotate(0deg) scale(1.06); }
-  to   { transform: rotate(360deg) scale(1.06); }
+  0% { transform: rotate(20deg) scale(1.8); }
+  50% { transform: rotate(-20deg) scale(1.8); }
+  100% { transform: rotate(20deg) scale(1.8); }
 `;
-const coreGlowPulse = keyframes`
-  0%   { transform: scale(1);    opacity: .18; }
-  50%  { transform: scale(1.04); opacity: .30; }
-  100% { transform: scale(1);    opacity: .18; }
-`;
+
 const sparklesBlink = keyframes`
   0%,100% { opacity: .18; transform: translate3d(0,0,0); }
   50%     { opacity: .40; transform: translate3d(1px,-1px,0); }
@@ -56,6 +54,8 @@ const WinningModal: React.FC<WinningModalProps> = ({ onClose, visible }) => {
       }}
     >
       {/* === ANIMIRANA POZADINA === */}
+      {/* prvi sloj (sporiji, počinje odmah) */}
+
       <div
         css={css`
           position: absolute;
@@ -66,9 +66,11 @@ const WinningModal: React.FC<WinningModalProps> = ({ onClose, visible }) => {
           background-position: center;
           mix-blend-mode: screen;
           opacity: 0.2;
-          animation: ${raysSpinCCW} 36s linear infinite;
+          animation: ${raysSpinCCW} 38s linear infinite;
         `}
       />
+
+      {/* drugi sloj (blago kašnjenje od 3 sekunde i suprotna rotacija) */}
       <div
         css={css`
           position: absolute;
@@ -78,25 +80,12 @@ const WinningModal: React.FC<WinningModalProps> = ({ onClose, visible }) => {
           background-size: 120% 120%;
           background-position: center;
           mix-blend-mode: screen;
-          opacity: 0.2;
-          animation: ${raysSpinCW} 36s linear infinite;
+          opacity: 0.22;
+          animation: ${raysSpinCW} 34s linear infinite;
+          animation-delay: 3s;
         `}
       />
-      <div
-        css={css`
-          position: absolute;
-          inset: 0;
-          z-index: 1;
-          background: radial-gradient(
-            circle at 50% 50%,
-            rgba(255, 235, 180, 0.35) 0%,
-            rgba(255, 214, 120, 0.22) 40%,
-            rgba(255, 190, 90, 0.1) 65%,
-            rgba(255, 190, 90, 0) 78%
-          );
-          animation: ${coreGlowPulse} 2.8s ease-in-out infinite;
-        `}
-      />
+
       <div
         css={css`
           position: absolute;
