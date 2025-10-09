@@ -182,6 +182,25 @@ const MobileSlot: React.FC<MobileSlotProps> = ({ muted, audioRef }) => {
     "/blueDogHouse.png",
     "/GoldenReef.png",
   ]);
+  // 🕹️ Kontrola mute/unmute u realnom vremenu
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!(audio instanceof HTMLAudioElement)) return;
+
+    if (muted) {
+      // ako je mute, odmah pauziraj i resetuj
+      audio.pause();
+      audio.currentTime = 0;
+    } else {
+      // ako se unmute, možeš ponovo pokrenuti ako se trenutno spin-a
+      // (opcionalno — ovako ne svira stalno bez spina)
+      if (winner === null && spinCount > 0 && spinCount < 2) {
+        audio.currentTime = 0;
+        audio.volume = 0.6;
+        audio.play().catch((err) => console.warn("Audio resume error:", err));
+      }
+    }
+  }, [muted]); // reaguje svaki put kad promijeniš mute/unmute
 
   useEffect(() => {
     if (!containerRef.current || !frameRef.current) return;
@@ -229,10 +248,12 @@ const MobileSlot: React.FC<MobileSlotProps> = ({ muted, audioRef }) => {
 
     // 🎵 PLAY SOUND
     const audio = audioRef.current;
-    if (audio) {
+    if (audio instanceof HTMLAudioElement) {
       audio.currentTime = 0;
       audio.volume = 0.6;
-      if (!muted) audio.play().catch(() => {});
+      if (!muted) {
+        audio.play().catch((err) => console.warn("Audio play error:", err));
+      }
     }
 
     const dogHouseIndex = SYMBOLS.findIndex((s) => s.includes("dogHouse.png"));
@@ -262,16 +283,19 @@ const MobileSlot: React.FC<MobileSlotProps> = ({ muted, audioRef }) => {
     });
 
     // 🕒 trajanje spina (isti fade kao desktop)
+    // 🕒 trajanje spina (isti fade kao desktop)
     const totalSpinDuration = 4800 + (spinnerRefs.length - 1) * 400;
+
     setTimeout(() => {
-      if (audioRef.current) {
+      const audioEl = audioRef.current;
+      if (audioEl instanceof HTMLAudioElement) {
         const fade = setInterval(() => {
-          if (audioRef.current && audioRef.current.volume > 0.05) {
-            audioRef.current.volume -= 0.05;
+          if (audioEl.volume > 0.05) {
+            audioEl.volume = Math.max(0, audioEl.volume - 0.05);
           } else {
             clearInterval(fade);
-            audioRef.current?.pause();
-            audioRef.current.volume = 0.6;
+            audioEl.pause();
+            audioEl.volume = 0.6;
           }
         }, 80);
       }
