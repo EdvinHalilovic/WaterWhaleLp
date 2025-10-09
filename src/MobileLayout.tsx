@@ -1,9 +1,19 @@
-import React from "react";
-
+import React, { useEffect, useState, useRef } from "react";
 import Speaker from "./assets/Speaker";
 import MobileSlot from "./Components/MobileSlot";
 
 const MobileLayout: React.FC = () => {
+  const [muted, setMuted] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  // 🎵 inicijalizacija zvuka
+  useEffect(() => {
+    const audio = new Audio("/SlotSoundE.mp3");
+    audio.loop = true;
+    audio.volume = 0.6;
+    audioRef.current = audio;
+  }, []);
+
   return (
     <div
       style={{
@@ -17,21 +27,24 @@ const MobileLayout: React.FC = () => {
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
-
         position: "relative",
+        overflow: "hidden",
       }}
     >
-      {/* 🔊 Speaker */}
-      <div
-        style={{
-          position: "absolute",
-          top: "2vh",
-          right: "4vw",
-          zIndex: 10,
+      {/* 🔊 Speaker mute/unmute */}
+      <Speaker
+        muted={muted}
+        onToggle={() => {
+          setMuted((prev) => !prev);
+          if (audioRef.current) {
+            if (muted) {
+              audioRef.current.play();
+            } else {
+              audioRef.current.pause();
+            }
+          }
         }}
-      >
-        <Speaker />
-      </div>
+      />
 
       {/* 🐳 Blue Whale */}
       <img
@@ -40,7 +53,7 @@ const MobileLayout: React.FC = () => {
         style={{
           position: "absolute",
           top: "8vh",
-          right: "3vw",
+          right: "1vw",
           width: "clamp(70px, 14vw, 110px)",
           height: "auto",
           zIndex: 6,
@@ -57,13 +70,14 @@ const MobileLayout: React.FC = () => {
           position: "absolute",
           top: "8vh",
           left: "-2vw",
-
           transform: "rotate(12deg)",
           zIndex: 5,
           animation: "float 6s ease-in-out infinite",
           pointerEvents: "none",
         }}
       />
+
+      {/* 🐋 Whale.io Logo */}
       <img
         src="/whale.ioLogo.svg"
         alt="Whale.io Logo"
@@ -79,7 +93,7 @@ const MobileLayout: React.FC = () => {
         }}
       />
 
-      {/* 🎰 SLOT — centralni element */}
+      {/* 🎰 Mobile Slot (prima isti props kao desktop) */}
       <div
         style={{
           position: "relative",
@@ -87,13 +101,45 @@ const MobileLayout: React.FC = () => {
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
-          marginTop: "10vh", // dodaj da se slot spusti malo ispod loga
+          marginRight: "5vh",
+          marginTop: "10vh",
           width: "80vw",
           maxWidth: "420px",
           zIndex: 5,
         }}
       >
-        <MobileSlot />
+        <MobileSlot muted={muted} audioRef={audioRef} />
+        {/* 🪙 GOLD COIN DECORATION */}
+        {/* 🪙 GOLD COIN DECORATION */}
+        <div
+          style={{
+            position: "relative",
+            width: "100%",
+            maxWidth: "420px",
+            display: "flex",
+            justifyContent: "flex-end",
+            paddingRight: "min(6vw, 28px)",
+            marginTop: "min(1.5vh, 10px)",
+            marginLeft: "75%",
+          }}
+        >
+          <img
+            src="/goldCoin.png"
+            alt="Golden Coin"
+            style={{
+              width: "clamp(70px, 30vw, 90.297px)", // fiksno iz dizajna ali skalabilno
+              height: "auto",
+
+              aspectRatio: "70.30 / 71.86",
+              transform: "rotate(-15deg)",
+              flexShrink: 0,
+              objectFit: "contain",
+              animation: "coinFloat 3s ease-in-out infinite",
+              userSelect: "none",
+              pointerEvents: "none",
+            }}
+          />
+        </div>
       </div>
 
       {/* 🌿 Golden Seaweed */}

@@ -179,7 +179,10 @@ const Spinner = forwardRef<
 
 Spinner.displayName = "Spinner";
 
-const Slot: React.FC = () => {
+const Slot: React.FC<{
+  muted: boolean;
+  audioRef: React.MutableRefObject<HTMLAudioElement | null>;
+}> = ({ muted, audioRef }) => {
   const [winner, setWinner] = useState<boolean | null>(null);
   const [spinCount, setSpinCount] = useState(0);
   const [showWinModal, setShowWinModal] = useState(false);
@@ -251,6 +254,15 @@ const Slot: React.FC = () => {
     const nextSpin = spinCount + 1;
     setSpinCount(nextSpin);
 
+    const audio = audioRef.current;
+    if (audio) {
+      audio.currentTime = 0;
+      audio.volume = 0.6;
+      if (!muted) {
+        audio.play().catch(() => {});
+      }
+    }
+
     const dogHouseIndex = SYMBOLS.findIndex((s) => s.includes("dogHouse.png"));
     const dogHouses = [
       "/pinkDogHouse.png",
@@ -276,6 +288,24 @@ const Slot: React.FC = () => {
     spinnerRefs.forEach((ref, i) => {
       ref.current?.spin(i * 400, targetPositions[i]);
     });
+
+    // ⏱ trajanje ukupnog spina = najduža kolona + delay (zadnja ima najduže trajanje)
+    const totalSpinDuration = 4800 + (spinnerRefs.length - 1) * 400; // isto kao tvoj duration
+
+    // 🎵 Zaustavi zvuk tačno kad spin završi
+    setTimeout(() => {
+      if (audioRef.current) {
+        const fade = setInterval(() => {
+          if (audioRef.current && audioRef.current.volume > 0.05) {
+            audioRef.current.volume -= 0.05;
+          } else {
+            clearInterval(fade);
+            audioRef.current?.pause();
+            audioRef.current.volume = 0.6;
+          }
+        }, 80);
+      }
+    }, totalSpinDuration);
   };
 
   return (

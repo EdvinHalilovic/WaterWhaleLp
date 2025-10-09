@@ -1,24 +1,34 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import Slot from "./Components/Slot";
 import Speaker from "./assets/Speaker";
 import MobileLayout from "./MobileLayout";
 
 function App() {
-  // ✅ detekcija mobilnog ekrana
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  const [muted, setMuted] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
+  // 📱 detekcija mobilnog ekrana
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 768);
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // ✅ mobilna verzija
+  // 🎵 inicijalizacija zvuka
+  useEffect(() => {
+    const audio = new Audio("/SlotSoundE.mp3");
+    audio.loop = true;
+    audio.volume = 0.6;
+    audioRef.current = audio;
+  }, []);
+
+  // 📱 mobilni layout
   if (isMobile) {
     return <MobileLayout />;
   }
 
-  // ✅ tvoj desktop layout (nepromijenjen)
+  // 💻 desktop layout
   return (
     <div
       style={{
@@ -36,8 +46,20 @@ function App() {
         position: "relative",
       }}
     >
-      {/* 🔊 Speaker ikonica gore desno */}
-      <Speaker />
+      {/* 🔊 Speaker ikonica mute/unmute */}
+      <Speaker
+        muted={muted}
+        onToggle={() => {
+          setMuted((prev) => !prev);
+          if (audioRef.current) {
+            if (muted) {
+              audioRef.current.play();
+            } else {
+              audioRef.current.pause();
+            }
+          }
+        }}
+      />
 
       {/* 🐳 Blue Whale */}
       <img
@@ -49,19 +71,12 @@ function App() {
           right: "clamp(0%, 0vw, 0%)",
           width: "clamp(90px, 10vw, 162px)",
           height: "auto",
-          flexShrink: 0,
-          aspectRatio: "1 / 1",
           zIndex: 4,
           animation: "floatWhale 7s ease-in-out infinite",
           pointerEvents: "none",
           userSelect: "none",
-          imageRendering: "auto",
-          backgroundColor: "transparent",
-          mixBlendMode: "screen",
-          filter: "drop-shadow(0 4px 4px rgba(0,0,0,0.25))",
         }}
       />
-
       <style>
         {`
         @keyframes floatWhale {
@@ -83,15 +98,12 @@ function App() {
           width: "clamp(90px, 10vw, 142px)",
           height: "auto",
           transform: "rotate(15deg)",
-          flexShrink: 0,
-          aspectRatio: "1 / 1",
           zIndex: 4,
+          animation: "float 5s ease-in-out infinite",
           pointerEvents: "none",
           userSelect: "none",
-          animation: "float 5s ease-in-out infinite",
         }}
       />
-
       <style>
         {`
         @keyframes float {
@@ -101,24 +113,24 @@ function App() {
         }
       `}
       </style>
+
+      {/* 🐋 Whale.io Logo */}
       <img
         src="/whale.ioLogo.svg"
         alt="Whale.io Logo"
         style={{
           width: "clamp(120px, 18vw, 180px)",
           height: "auto",
-          aspectRatio: "15 / 4",
-          flexShrink: 0,
           marginBottom: "1.5rem",
           userSelect: "none",
           pointerEvents: "none",
         }}
       />
 
-      {/* 🎰 Slot komponenta */}
-      <Slot />
+      {/* 🎰 Slot komponenta (prima mute i audioRef) */}
+      <Slot muted={muted} audioRef={audioRef} />
 
-      {/* 🌿 Golden Seaweed dekoracija */}
+      {/* 🌿 Golden Seaweed */}
       <img
         src="/GoldenSeaWeed.png"
         alt="Golden Seaweed"
@@ -129,10 +141,6 @@ function App() {
           width: "clamp(80px, 12vw, 160.66px)",
           height: "auto",
           transform: "rotate(30deg)",
-          transformOrigin: "bottom left",
-          flexShrink: 0,
-          aspectRatio: "160.66 / 129.32",
-          zIndex: 3,
           pointerEvents: "none",
         }}
       />

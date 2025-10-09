@@ -9,6 +9,11 @@ import React, {
 import "/src/mobile.css";
 import WinningModal from "./WinningModal";
 
+interface MobileSlotProps {
+  muted: boolean;
+  audioRef: React.MutableRefObject<HTMLAudioElement | null>;
+}
+
 const SYMBOLS = [
   "/A.png",
   "/K.png",
@@ -125,15 +130,13 @@ const Spinner = forwardRef<
         <div
           ref={spinnerInnerRef}
           className="spinner-inner"
-          style={{
-            willChange: "transform",
-          }}
+          style={{ willChange: "transform" }}
         >
-          {initialSymbol ? (
+          {initialSymbol && (
             <div className="symbol-wrapper">
               <img src={initialSymbol} alt="initial" className="symbol" />
             </div>
-          ) : null}
+          )}
 
           {SYMBOLS.map((src, i) => (
             <div key={i} className="symbol-wrapper">
@@ -163,13 +166,13 @@ const Spinner = forwardRef<
 
 Spinner.displayName = "Spinner";
 
-const MobileSlot: React.FC = () => {
+const MobileSlot: React.FC<MobileSlotProps> = ({ muted, audioRef }) => {
   const [winner, setWinner] = useState<boolean | null>(null);
   const [spinCount, setSpinCount] = useState(0);
   const [showWinModal, setShowWinModal] = useState(false);
-
   const [, setLoserMessage] = useState("");
   const [, setMatches] = useState<number[]>([]);
+
   const containerRef = useRef<HTMLDivElement | null>(null);
   const frameRef = useRef<HTMLImageElement | null>(null);
   const [initialSymbols] = useState([
@@ -224,6 +227,14 @@ const MobileSlot: React.FC = () => {
     const nextSpin = spinCount + 1;
     setSpinCount(nextSpin);
 
+    // 🎵 PLAY SOUND
+    const audio = audioRef.current;
+    if (audio) {
+      audio.currentTime = 0;
+      audio.volume = 0.6;
+      if (!muted) audio.play().catch(() => {});
+    }
+
     const dogHouseIndex = SYMBOLS.findIndex((s) => s.includes("dogHouse.png"));
     const dogHouses = [
       "/pinkDogHouse.png",
@@ -249,6 +260,22 @@ const MobileSlot: React.FC = () => {
     spinnerRefs.forEach((ref, i) => {
       ref.current?.spin(i * 400, targetPositions[i]);
     });
+
+    // 🕒 trajanje spina (isti fade kao desktop)
+    const totalSpinDuration = 4800 + (spinnerRefs.length - 1) * 400;
+    setTimeout(() => {
+      if (audioRef.current) {
+        const fade = setInterval(() => {
+          if (audioRef.current && audioRef.current.volume > 0.05) {
+            audioRef.current.volume -= 0.05;
+          } else {
+            clearInterval(fade);
+            audioRef.current?.pause();
+            audioRef.current.volume = 0.6;
+          }
+        }, 80);
+      }
+    }, totalSpinDuration);
   };
 
   return (
@@ -268,6 +295,7 @@ const MobileSlot: React.FC = () => {
     >
       {winner && <WinningSound />}
 
+      {/* 🎰 SLOT REELS */}
       <div
         ref={containerRef}
         style={{
@@ -275,9 +303,9 @@ const MobileSlot: React.FC = () => {
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
-          width: "min(100vw, 420px)", // 🔥 automatski koristi 90% širine, max 420px
-          aspectRatio: "1.4 / 1", // 🔥 zadržava isti odnos visine i širine (kao 420x298)
-          maxHeight: "min(70vh, 340px)", // 🔥 neće preći 70% ekrana visine ni 340px
+          width: "min(100vw, 420px)",
+          aspectRatio: "1.4 / 1",
+          maxHeight: "min(70vh, 340px)",
           overflow: "visible",
         }}
       >
@@ -294,6 +322,8 @@ const MobileSlot: React.FC = () => {
           ))}
           <div className="gradient-fade" />
         </div>
+
+        {/* 🐳 FRAME ELEMENTS */}
         <img
           src="/WaterLogo.png"
           alt="Water Logo"
@@ -309,7 +339,6 @@ const MobileSlot: React.FC = () => {
             userSelect: "none",
           }}
         />
-
         <img
           ref={frameRef}
           src="/waterFrame.png"
@@ -325,7 +354,7 @@ const MobileSlot: React.FC = () => {
         />
       </div>
 
-      {/* 🎰 SPIN BUTTON */}
+      {/* 🟡 SPIN BUTTON */}
       <button
         onClick={handleSpin}
         disabled={spinCount >= 2}
@@ -336,7 +365,7 @@ const MobileSlot: React.FC = () => {
           justifyContent: "center",
           alignItems: "center",
           gap: "8px",
-          width: "clamp(130px, 45vw, 180px)", // skalira se po ekranu
+          width: "clamp(130px, 45vw, 180px)",
           padding: "12px 32px",
           borderRadius: "24px",
           border: "2.286px solid #F28F2E",
@@ -387,7 +416,7 @@ const MobileSlot: React.FC = () => {
         </div>
       </button>
 
-      {/* 🎯 YOU HAVE 2 SPINS BLOCK */}
+      {/* 🟦 INFO BAR (YOU HAVE X SPINS) */}
       <div
         style={{
           display: "flex",
@@ -444,6 +473,7 @@ const MobileSlot: React.FC = () => {
         </div>
       </div>
 
+      {/* 🏆 WIN MODAL */}
       <WinningModal
         visible={showWinModal}
         onClose={() => setShowWinModal(false)}
