@@ -8,15 +8,29 @@
       content="width=device-width, initial-scale=1.0, viewport-fit=cover"
     />
 
+    <!-- ✅ iOS PWA fullscreen -->
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta
       name="apple-mobile-web-app-status-bar-style"
       content="black-translucent"
     />
 
+    <!-- ✅ Dinamični theme-color za light/dark mod -->
+    <meta
+      name="theme-color"
+      content="#000000"
+      media="(prefers-color-scheme: dark)"
+    />
+    <meta
+      name="theme-color"
+      content="#ffffff"
+      media="(prefers-color-scheme: light)"
+    />
+
     <title>water-whalelp</title>
 
     <style>
+      /* ✅ Osnovni reset i fullscreen zaštita */
       html,
       body {
         margin: 0;
@@ -25,15 +39,32 @@
         width: 100%;
         overflow: hidden;
         background-color: #000;
+        overscroll-behavior: none;
+        -webkit-overflow-scrolling: auto; /* iOS fix */
       }
 
+      /* ✅ Dinamična visina */
       :root {
         --app-height: 100vh;
       }
 
       #root {
         width: 100%;
-        height: 100%;
+        height: var(--app-height);
+      }
+
+      /* ✅ Sprječava scroll bounce */
+      body,
+      html {
+        touch-action: none;
+      }
+
+      /* ✅ Tamni/svijetli mod */
+      @media (prefers-color-scheme: light) {
+        html,
+        body {
+          background-color: #fff;
+        }
       }
     </style>
   </head>
@@ -42,7 +73,7 @@
     <div id="root"></div>
 
     <script>
-      // ✅ Correct iOS Safari fix for dynamic viewport height
+      // ✅ Dynamic viewport height fix za iOS Safari
       function setAppHeight() {
         const appHeight = window.innerHeight;
         document.documentElement.style.setProperty(
