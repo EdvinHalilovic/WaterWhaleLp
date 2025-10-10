@@ -173,7 +173,7 @@ button:hover {
   top: 50%;
   left: 50%;
   margin-top: 20px;
-  transform: translate(-50%, -52%) scale(0.8); /* 🔹 malo manja skala i pomjereno naviše */
+  transform: translate(-50%, -52%) scale(0.85); /* 🔹 malo manja skala i pomjereno naviše */
   display: flex;
   justify-content: center;
   align-items: center;

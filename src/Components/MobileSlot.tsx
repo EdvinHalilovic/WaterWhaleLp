@@ -61,6 +61,7 @@ const Spinner = forwardRef<
     const activeRef = useRef(false);
 
     const easeOutQuart = (t: number) => 1 - Math.pow(1 - t, 4);
+    const [position, setPosition] = useState(0);
 
     const spinAnimation = useCallback(
       (
@@ -89,9 +90,7 @@ const Spinner = forwardRef<
           (ICON_HEIGHT * TOTAL_SYMBOLS)
         );
 
-        if (spinnerInnerRef.current) {
-          spinnerInnerRef.current.style.transform = `translateY(${newPos}px)`;
-        }
+        setPosition(newPos);
 
         if (progress < 1) {
           timerRef.current = requestAnimationFrame((t) =>
@@ -130,7 +129,10 @@ const Spinner = forwardRef<
         <div
           ref={spinnerInnerRef}
           className="spinner-inner"
-          style={{ willChange: "transform" }}
+          style={{
+            transform: `translateY(${position}px)`,
+            transition: activeRef.current ? "none" : "transform 0.5s ease-out",
+          }}
         >
           {initialSymbol && (
             <div className="symbol-wrapper">
