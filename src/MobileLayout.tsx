@@ -22,7 +22,7 @@ const MobileLayout: React.FC = () => {
         backgroundPosition: "center",
         backgroundRepeat: "no-repeat",
         width: "100vw",
-        height: "100vh",
+        height: "var(--app-height)",
         display: "flex",
         flexDirection: "column",
         alignItems: "center",

@@ -3,7 +3,17 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- ✅ Fullscreen & Safe-Area Support for iOS -->
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
 
     <title>water-whalelp</title>
 
@@ -12,26 +22,33 @@
       body {
         margin: 0;
         padding: 0;
-        height: 100%;
         width: 100%;
+        height: 100%;
         overflow: hidden;
-        background-color: black;
+        background: #000;
+        font-family: sans-serif;
       }
 
-      /* 📱 iOS-safe fullscreen variable */
       :root {
+        /* ✅ Dynamic height variable for iOS Safari */
         --app-height: 100vh;
       }
 
-      /* ✅ optional: remove Safari grey tap highlight */
-      body {
-        -webkit-tap-highlight-color: transparent;
-        touch-action: manipulation;
+      #root {
+        width: 100%;
+        height: var(--app-height); /* Use fixed viewport height */
+        background: url("/mobileWaterBg.png") center center / cover no-repeat;
+        background-attachment: fixed;
+        display: flex;
+        align-items: center;
+        justify-content: center;
       }
 
-      #root {
-        height: 100%;
-        width: 100%;
+      /* Optional: Fix for iPhone safe areas */
+      @supports (padding: max(0px)) {
+        body {
+          padding-bottom: env(safe-area-inset-bottom);
+        }
       }
     </style>
   </head>
@@ -40,16 +57,18 @@
     <div id="root"></div>
 
     <script>
-      // ✅ iOS Safari fix for 100vh
-      function setAppHeight() {
+      // ✅ Handle iOS Safari dynamic viewport changes correctly
+      const setAppHeight = () => {
+        const appHeight = window.innerHeight;
         document.documentElement.style.setProperty(
           "--app-height",
-          `${window.innerHeight}px`
+          `${appHeight}px`
         );
-      }
+      };
 
       window.addEventListener("resize", setAppHeight);
       window.addEventListener("orientationchange", setAppHeight);
+      window.addEventListener("focus", setAppHeight);
       setAppHeight();
     </script>
 
