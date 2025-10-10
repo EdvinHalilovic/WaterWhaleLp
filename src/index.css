@@ -1,5 +1,28 @@
 /* ==============================
-   🌊 Global Reset & Base Styles
+   🌊 Global Background (Full-screen fix for iOS)
+   ============================== */
+html {
+  background-color: #000;
+  background-image: url("/mobileWaterBg.png"); /* 🔹 tvoja glavna pozadina */
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+
+  /* ⚡ puni cijeli ekran uključujući iPhone safe areas */
+  height: 100%;
+  width: 100%;
+  min-height: 100vh;
+  min-height: var(--app-height);
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+
+  /* sprječava bijeli flash prilikom loadanja */
+  overscroll-behavior: none;
+}
+
+/* ==============================
+   ⚙️ Root Settings
    ============================== */
 :root {
   --app-height: 100vh;
@@ -9,7 +32,6 @@
 
   color-scheme: light dark;
   color: rgba(255, 255, 255, 0.87);
-  background-color: #000;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -18,23 +40,23 @@
 }
 
 /* ==============================
-   🖤 Layout & Fullscreen Fix
+   🖤 Body Fullscreen Fix
    ============================== */
-html,
 body {
   margin: 0;
   padding: 0;
   width: 100%;
-  height: var(--app-height); /* ✅ stvarna visina ekrana */
-  overflow: hidden; /* sprječava skrol i plavi overscroll */
+  height: var(--app-height);
+  min-height: var(--app-height);
+  overflow: hidden;
   overscroll-behavior: none;
-  -webkit-overflow-scrolling: auto; /* iOS fix */
-  background-color: #000;
-  touch-action: none; /* sprječava bounce scroll */
+  -webkit-overflow-scrolling: auto;
+  touch-action: none;
+
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
+  background: transparent; /* ✅ sada pozadina dolazi iz <html> */
 }
 
 /* ==============================
@@ -81,8 +103,12 @@ button:focus-visible {
     background-color: #ffffff;
   }
 
+  html {
+    background-image: url("/mobileWaterBg.png");
+  }
+
   body {
-    background-color: #fff;
+    background: transparent;
   }
 
   a {
