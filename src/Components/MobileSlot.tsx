@@ -201,6 +201,35 @@ const MobileSlot: React.FC<MobileSlotProps> = ({ muted, audioRef }) => {
       }
     }
   }, [muted]); // reaguje svaki put kad promijeniš mute/unmute
+  useEffect(() => {
+    // 🔹 Preload all slot images
+    const imagesToPreload = [
+      "/A.png",
+      "/K.png",
+      "/Q.png",
+      "/J.png",
+      "/10.png",
+      "/goldCoin.png",
+      "/stick.png",
+      "/GoldenReef.png",
+      "/greenDogHouse.png",
+      "/blueDogHouse.png",
+      "/pinkDogHouse.png",
+      "/redDogHouse.png",
+      "/dogHouse.png",
+      "/waterFrame.png",
+      "/WaterLogo.png",
+      "/BlueWhale.png",
+      "/DogHouseBg.png",
+      "/goldCoin.png",
+      "/GoldenSeaWeed.png",
+    ];
+
+    imagesToPreload.forEach((src) => {
+      const img = new Image();
+      img.src = src;
+    });
+  }, []);
 
   useEffect(() => {
     if (!containerRef.current || !frameRef.current) return;

@@ -1,13 +1,58 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
     <title>water-whalelp</title>
+
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+        overflow: hidden;
+        background-color: black;
+      }
+
+      /* 📱 iOS-safe fullscreen variable */
+      :root {
+        --app-height: 100vh;
+      }
+
+      /* ✅ optional: remove Safari grey tap highlight */
+      body {
+        -webkit-tap-highlight-color: transparent;
+        touch-action: manipulation;
+      }
+
+      #root {
+        height: 100%;
+        width: 100%;
+      }
+    </style>
   </head>
+
   <body>
     <div id="root"></div>
+
+    <script>
+      // ✅ iOS Safari fix for 100vh
+      function setAppHeight() {
+        document.documentElement.style.setProperty(
+          "--app-height",
+          `${window.innerHeight}px`
+        );
+      }
+
+      window.addEventListener("resize", setAppHeight);
+      window.addEventListener("orientationchange", setAppHeight);
+      setAppHeight();
+    </script>
+
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

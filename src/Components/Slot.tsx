@@ -215,6 +215,36 @@ const Slot: React.FC<{
     return () => observer.disconnect();
   }, []);
 
+  useEffect(() => {
+    // 🔹 Preload all slot images
+    const imagesToPreload = [
+      "/A.png",
+      "/K.png",
+      "/Q.png",
+      "/J.png",
+      "/10.png",
+      "/goldCoin.png",
+      "/stick.png",
+      "/GoldenReef.png",
+      "/greenDogHouse.png",
+      "/blueDogHouse.png",
+      "/pinkDogHouse.png",
+      "/redDogHouse.png",
+      "/dogHouse.png",
+      "/waterFrame.png",
+      "/WaterLogo.png",
+      "/BlueWhale.png",
+      "/DogHouseBg.png",
+      "/goldCoin.png",
+      "/GoldenSeaWeed.png",
+    ];
+
+    imagesToPreload.forEach((src) => {
+      const img = new Image();
+      img.src = src;
+    });
+  }, []);
+
   const spinnerRefs = [
     useRef<{ spin: (delay?: number, targetPos?: number) => void }>(null),
     useRef<{ spin: (delay?: number, targetPos?: number) => void }>(null),
