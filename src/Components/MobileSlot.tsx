@@ -63,7 +63,6 @@ const Spinner = forwardRef<
     // 🎯 Napredni easing i animacija u 60 fps
     const [position, setPosition] = useState(0);
     const easingFn = (t: number) => 1 - Math.pow(1 - t, 3.5); // smooth cubic style
-    const fps = 1000 / 60; // ≈60 fps
 
     const spinAnimation = useCallback(
       (
