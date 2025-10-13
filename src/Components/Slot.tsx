@@ -265,10 +265,9 @@ const Slot: React.FC<{
         // 🔥 provjeri spinCount nakon što se svi završe
         setTimeout(() => {
           if (spinCount + 1 === 2) {
-            // spinCount + 1 jer novi spin tek ulazi
             setShowWinModal(true);
           }
-        }, 600);
+        }, 2200); // ⬅️ OVO MJESTO
       }
 
       return updated;
@@ -380,6 +379,14 @@ const Slot: React.FC<{
               initialSymbol={initialSymbols[i]}
             />
           ))}
+          {winner && spinCount === 2 && (
+            <div className="win-line-wrapper">
+              <div className="win-line" />
+              <div className="win-pulse-center" />
+              <div className="sparkle sparkle-left" />
+              <div className="sparkle sparkle-right" />
+            </div>
+          )}
 
           <div className="gradient-fade" />
         </div>

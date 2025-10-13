@@ -60,8 +60,10 @@ const Spinner = forwardRef<
     const startTimeRef = useRef<number | null>(null);
     const activeRef = useRef(false);
 
-    const easeOutQuart = (t: number) => 1 - Math.pow(1 - t, 4);
+    // 🎯 Napredni easing i animacija u 60 fps
     const [position, setPosition] = useState(0);
+    const easingFn = (t: number) => 1 - Math.pow(1 - t, 3.5); // smooth cubic style
+    const fps = 1000 / 60; // ≈60 fps
 
     const spinAnimation = useCallback(
       (
@@ -82,9 +84,11 @@ const Spinner = forwardRef<
         }
 
         const progress = Math.min(elapsed / localDuration, 1);
-        const eased = easeOutQuart(progress);
+        const eased = easingFn(progress);
+
+        // ⚡ 25 punih krugova
         const distance = ICON_HEIGHT * TOTAL_SYMBOLS * 25 * eased;
-        const offsetCenter = ICON_HEIGHT * 1.0;
+        const offsetCenter = ICON_HEIGHT;
         const newPos = -(
           (distance + targetPos + offsetCenter) %
           (ICON_HEIGHT * TOTAL_SYMBOLS)
@@ -257,13 +261,20 @@ const MobileSlot: React.FC<MobileSlotProps> = ({ muted, audioRef }) => {
   const handleFinish = (value: number) => {
     setMatches((prev) => {
       const updated = [...prev, value];
+
+      // čekamo da svih 5 kolona završi spin
       if (updated.length === 5) {
         const allSame = updated.every((v) => v === updated[0]);
         setWinner(allSame);
+
+        // ⏳ Ako je zadnji spin i win — sačekaj animaciju prije moda
         setTimeout(() => {
-          if (spinCount + 1 === 2) setShowWinModal(true);
-        }, 600);
+          if (spinCount + 1 === 2) {
+            setShowWinModal(true);
+          }
+        }, 2200); // ⬅️ identično kao desktop verzija
       }
+
       return updated;
     });
   };
@@ -377,6 +388,14 @@ const MobileSlot: React.FC<MobileSlotProps> = ({ muted, audioRef }) => {
           ))}
           <div className="gradient-fade" />
         </div>
+        {winner && spinCount === 2 && (
+          <div className="win-line-wrapper">
+            <div className="win-line" />
+            <div className="win-pulse-center" />
+            <div className="sparkle sparkle-left" />
+            <div className="sparkle sparkle-right" />
+          </div>
+        )}
 
         {/* 🐳 FRAME ELEMENTS */}
         <img
