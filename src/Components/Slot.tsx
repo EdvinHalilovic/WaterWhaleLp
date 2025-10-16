@@ -549,10 +549,7 @@ const Slot: React.FC<{
         </button>
       </div>
 
-      <WinningModal
-        visible={showWinModal}
-        onClose={() => setShowWinModal(false)}
-      />
+      <WinningModal visible={showWinModal} />
     </div>
   );
 };

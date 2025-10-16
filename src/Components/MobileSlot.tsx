@@ -545,10 +545,7 @@ const MobileSlot: React.FC<MobileSlotProps> = ({ muted, audioRef }) => {
       </div>
 
       {/* 🏆 WIN MODAL */}
-      <WinningModal
-        visible={showWinModal}
-        onClose={() => setShowWinModal(false)}
-      />
+      <WinningModal visible={showWinModal} />
     </div>
   );
 };

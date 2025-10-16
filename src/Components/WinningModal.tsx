@@ -40,7 +40,7 @@ const WinningModal: React.FC<WinningModalProps> = ({ visible }) => {
       setTimeout(() => {
         window.open("https://whale.io/", "_blank");
       }, 2000);
-    } catch (err) {
+    } catch {
       alert("❌ Failed to copy the code. Please try again.");
     }
   };
