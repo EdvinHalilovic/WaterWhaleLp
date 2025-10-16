@@ -133,3 +133,10 @@
     transform: translate(-50%, -250%) scale(1.8);
   }
 }
+@media (min-width: 820px) {
+  .controls-wrapper {
+    flex-direction: row;
+    justify-content: center;
+    gap: 32px;
+  }
+}

@@ -323,9 +323,7 @@ const MobileSlot: React.FC<MobileSlotProps> = ({ muted, audioRef }) => {
       ref.current?.spin(i * 400, targetPositions[i]);
     });
 
-    // 🕒 trajanje spina (isti fade kao desktop)
-    // 🕒 trajanje spina (isti fade kao desktop)
-    const totalSpinDuration = 4800 + (spinnerRefs.length - 1) * 400;
+    const totalSpinDuration = 2500 + (spinnerRefs.length - 1) * 200;
 
     setTimeout(() => {
       const audioEl = audioRef.current;
@@ -379,7 +377,7 @@ const MobileSlot: React.FC<MobileSlotProps> = ({ muted, audioRef }) => {
             <Spinner
               key={i}
               onFinish={handleFinish}
-              duration={4200 + i * 300}
+              duration={2500 + i * 200}
               ref={spinnerRefs[i]}
               winner={!!winner}
               initialSymbol={initialSymbols[i]}

@@ -25,15 +25,25 @@ interface WinningModalProps {
 }
 
 const WinningModal: React.FC<WinningModalProps> = ({ onClose, visible }) => {
-  const [claimed, setClaimed] = useState(false);
+  const [claimed] = useState(false);
 
   if (!visible) return null;
 
-  const handleClaim = () => setClaimed(true);
+  const handleClaim = async () => {
+    const textToCopy = "WHALE.IO";
 
-  const handleCopy = () => {
-    navigator.clipboard.writeText("WHALE.IO");
-    onClose();
+    try {
+      await navigator.clipboard.writeText(textToCopy);
+      // ✅ Pokaži toast
+      alert("✅ Code copied! You’ll be redirected to claim your free spins.");
+
+      // ⏳ Sačekaj 2 sekunde pa otvori stranicu
+      setTimeout(() => {
+        window.open("https://whale.io/", "_blank");
+      }, 2000);
+    } catch (err) {
+      alert("❌ Failed to copy the code. Please try again.");
+    }
   };
 
   return (

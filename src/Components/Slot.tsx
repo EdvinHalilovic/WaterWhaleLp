@@ -318,8 +318,7 @@ const Slot: React.FC<{
       ref.current?.spin(i * 400, targetPositions[i]);
     });
 
-    // ⏱ trajanje ukupnog spina = najduža kolona + delay (zadnja ima najduže trajanje)
-    const totalSpinDuration = 4800 + (spinnerRefs.length - 1) * 400; // isto kao tvoj duration
+    const totalSpinDuration = 2500 + (spinnerRefs.length - 1) * 200;
 
     // 🎵 Zaustavi zvuk tačno kad spin završi (null-safe)
     setTimeout(() => {
@@ -373,7 +372,7 @@ const Slot: React.FC<{
             <Spinner
               key={i}
               onFinish={handleFinish}
-              duration={4800 + i * 400}
+              duration={2500 + i * 200}
               ref={spinnerRefs[i]}
               winner={!!winner}
               initialSymbol={initialSymbols[i]}
@@ -440,104 +439,116 @@ const Slot: React.FC<{
 
       <div
         style={{
-          position: "absolute",
-          bottom: "calc(2% + 3.8vw)",
+          position: "relative",
+          bottom: "clamp(3%, 4vw, 8%)",
           left: "50%",
-          transform: "translate(-85%, 0)",
+          transform: "translateX(-80%)",
           display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
           alignItems: "center",
-          gap: "clamp(2px, 0.5vw, 4px)",
-          width: "clamp(160px, 20vw, 220px)",
-          padding: "clamp(3px, 0.8vw, 6px)",
-          borderRadius: "clamp(24px, 3vw, 32px)",
-          border: "2px solid #002C47",
-          background:
-            "linear-gradient(180deg, rgba(0,44,71,0.6) 0%, rgba(0,24,40,0.4) 100%)",
-          boxShadow: "0 0 10px rgba(0, 0, 0, 0.3)",
-          color: "#FFF",
-          fontFamily: "Poppins, sans-serif",
-          textAlign: "center",
-          backdropFilter: "blur(6px)",
+          justifyContent: "center",
+          gap: "clamp(20px, 5vw, 80px)", // razmak između njih
+          flexWrap: "wrap",
+          marginTop: "clamp(10px, 3vh, 20px)",
           zIndex: 10,
         }}
       >
-        <span
+        {/* Counter */}
+        <div
           style={{
-            fontSize: "clamp(8px, 1vw, 10px)",
-            fontWeight: "400",
-            letterSpacing: "0.4px",
-            opacity: 0.85,
-          }}
-        >
-          YOU HAVE
-        </span>
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            alignItems: "center",
+            gap: "clamp(2px, 0.5vw, 4px)",
+            width: "clamp(160px, 20vw, 220px)",
+            padding: "clamp(3px, 0.8vw, 6px)",
+            borderRadius: "clamp(24px, 3vw, 32px)",
+            border: "2px solid #002C47",
 
-        <span
-          style={{
-            fontWeight: "700",
-            fontSize: "clamp(10px, 1.4vw, 14px)",
-            color: "#FFD700",
+            background:
+              "linear-gradient(180deg, rgba(0,44,71,0.6) 0%, rgba(0,24,40,0.4) 100%)",
+            boxShadow: "0 0 10px rgba(0, 0, 0, 0.3)",
+            color: "#FFF",
+            fontFamily: "Poppins, sans-serif",
+            textAlign: "center",
+            backdropFilter: "blur(6px)",
           }}
         >
-          {2 - spinCount} SPIN{2 - spinCount !== 1 ? "S" : ""}
-        </span>
+          <span
+            style={{
+              fontSize: "clamp(8px, 1vw, 10px)",
+              fontWeight: "400",
+              letterSpacing: "0.4px",
+              opacity: 0.85,
+            }}
+          >
+            YOU HAVE
+          </span>
+          <span
+            style={{
+              fontWeight: "700",
+              fontSize: "clamp(10px, 1.4vw, 14px)",
+              color: "#FFD700",
+            }}
+          >
+            {2 - spinCount} SPIN{2 - spinCount !== 1 ? "S" : ""}
+          </span>
+        </div>
+
+        {/* Dugme */}
+        <button
+          onClick={handleSpin}
+          disabled={spinCount >= 2}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "clamp(6px, 1vw, 10px)",
+            width: "clamp(130px, 16vw, 190px)",
+            height: "clamp(60px, 6vh, 90px)",
+            padding: "clamp(6px, 0.8vw, 8px) clamp(16px, 1.6vw, 20px)",
+            borderRadius: "68.6px",
+            transform: "translateY(-28%)",
+            border: "2px solid #F28F2E",
+            background:
+              "linear-gradient(0deg, rgba(242,143,46,0.20) 0%, rgba(242,143,46,0.20) 100%), #011220",
+            color: spinCount >= 2 ? "#9FA6AD" : "#FFFFFF",
+            fontSize: "clamp(14px, 1.4vw, 18px)",
+
+            fontWeight: 600,
+            cursor: spinCount >= 2 ? "not-allowed" : "pointer",
+            opacity: spinCount >= 2 ? 0.6 : 1,
+            transition: "all 0.25s ease-in-out",
+
+            boxShadow:
+              spinCount >= 2
+                ? "none"
+                : "0 0 10px rgba(242,143,46,0.25), inset 0 0 10px rgba(242,143,46,0.15)",
+          }}
+        >
+          <img
+            src="/Refresh.svg"
+            alt="Refresh Icon"
+            style={{
+              width: "clamp(12px, 2vw, 19px)",
+              height: "auto",
+              opacity: spinCount >= 2 ? 0.5 : 1,
+              filter: spinCount >= 2 ? "grayscale(100%)" : "none",
+              userSelect: "none",
+              pointerEvents: "none",
+            }}
+          />
+          <span
+            style={{
+              fontWeight: 600,
+              color: spinCount >= 2 ? "#9FA6AD" : "#FFFFFF",
+            }}
+          >
+            Spin
+          </span>
+        </button>
       </div>
 
-      <button
-        onClick={handleSpin}
-        disabled={spinCount >= 2}
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          position: "absolute",
-          transform: "translateY(-60%)",
-          bottom: "clamp(3%, 5vh, 6%)",
-          right: "clamp(34%, 8vw, 1%)",
-          gap: "clamp(6px, 1vw, 10px)",
-          width: "clamp(130px, 16vw, 190px)",
-          height: "clamp(60px, 6vh, 90px)",
-          padding: "clamp(6px, 0.8vw, 8px) clamp(16px, 1.6vw, 20px)",
-          borderRadius: "68.6px",
-          border: "2px solid #F28F2E",
-          background:
-            "linear-gradient(0deg, rgba(242,143,46,0.20) 0%, rgba(242,143,46,0.20) 100%), #011220",
-          color: spinCount >= 2 ? "#9FA6AD" : "#FFFFFF",
-          fontSize: "clamp(14px, 1.4vw, 18px)",
-          fontWeight: 600,
-          cursor: spinCount >= 2 ? "not-allowed" : "pointer",
-          opacity: spinCount >= 2 ? 0.6 : 1,
-          transition: "all 0.25s ease-in-out",
-          zIndex: 10,
-          boxShadow:
-            spinCount >= 2
-              ? "none"
-              : "0 0 10px rgba(242,143,46,0.25), inset 0 0 10px rgba(242,143,46,0.15)",
-        }}
-      >
-        <img
-          src="/Refresh.svg"
-          alt="Refresh Icon"
-          style={{
-            width: "clamp(12px, 2vw, 19px)",
-            height: "auto",
-            opacity: spinCount >= 2 ? 0.5 : 1,
-            filter: spinCount >= 2 ? "grayscale(100%)" : "none",
-            userSelect: "none",
-            pointerEvents: "none",
-          }}
-        />
-        <span
-          style={{
-            fontWeight: 600,
-            color: spinCount >= 2 ? "#9FA6AD" : "#FFFFFF",
-          }}
-        >
-          Spin
-        </span>
-      </button>
       <WinningModal
         visible={showWinModal}
         onClose={() => setShowWinModal(false)}
