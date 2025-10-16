@@ -79,7 +79,7 @@ const Spinner = forwardRef<
         const progress = Math.min(elapsed / localDuration, 1);
         const eased = easeOutQuart(progress);
         const distance = ICON_HEIGHT * TOTAL_SYMBOLS * 25 * eased;
-        const offsetCenter = ICON_HEIGHT * 1.0;
+        const offsetCenter = ICON_HEIGHT * 0.99;
         const newPos = -(
           (distance + targetPos + offsetCenter) %
           (ICON_HEIGHT * TOTAL_SYMBOLS)
@@ -125,7 +125,7 @@ const Spinner = forwardRef<
           className="spinner-inner"
           style={{
             transform: `translateY(${position}px)`,
-            transition: activeRef.current ? "none" : "transform 0.5s ease-out",
+            transition: "none",
           }}
         >
           {initialSymbol ? (
