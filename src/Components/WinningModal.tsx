@@ -33,13 +33,11 @@ const WinningModal: React.FC<WinningModalProps> = ({ visible }) => {
 
     try {
       await navigator.clipboard.writeText(textToCopy);
-      // ✅ Pokaži toast
-      alert("✅ Code copied! You’ll be redirected to claim your free spins.");
+      // ✅ prvo otvori tab — ovo prolazi kao "user gesture"
+      window.open("https://whale.io/", "_blank");
 
-      // ⏳ Sačekaj 2 sekunde pa otvori stranicu
-      setTimeout(() => {
-        window.open("https://whale.io/", "_blank");
-      }, 2000);
+      // ✅ zatim prikaži toast/alert
+      alert("✅ Code copied! You’ll be redirected to claim your free spins.");
     } catch {
       alert("❌ Failed to copy the code. Please try again.");
     }
