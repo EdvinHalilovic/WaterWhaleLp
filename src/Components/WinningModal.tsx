@@ -20,11 +20,10 @@ const sparklesBlink = keyframes`
 `;
 
 interface WinningModalProps {
-  onClose: () => void;
   visible: boolean;
 }
 
-const WinningModal: React.FC<WinningModalProps> = ({ onClose, visible }) => {
+const WinningModal: React.FC<WinningModalProps> = ({ visible }) => {
   const [claimed] = useState(false);
 
   if (!visible) return null;
@@ -207,7 +206,6 @@ const WinningModal: React.FC<WinningModalProps> = ({ onClose, visible }) => {
 
             {/* Copy button */}
             <button
-              onClick={handleCopy}
               style={{
                 display: "flex",
                 justifyContent: "center",
